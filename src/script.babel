@@ -1,0 +1,259 @@
+class Jogo extends React.Component {
+  render() {
+    return (
+      <div className="jogo">
+        <div className="jogo-tabuleiro">
+          <Tabuleiro 
+            />
+        </div> 
+        <div className="jogo-info">
+          <ol>{}</ol>
+        </div>
+      </div>
+    );
+    }
+}
+
+class Tabuleiro extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      quadrados: Array(9).fill(null),
+      xIsNext: true,
+      x: true
+    };
+      this.reiniciarJogo = this.reiniciarJogo.bind(this)
+  }
+  render() {
+    return (
+     
+      <div>
+        <Restart
+          value="Reiniciar"
+          onClick={() => {
+                this.reiniciarJogo();
+            }}/>
+        
+        <RandomValue
+           value="Aleatorio"
+          onClick={() => {
+                this.jogarAleatorio();
+            }}
+          
+          />
+        <Melhorjogada
+           value="Melhor Jogada"
+          onClick={() => {
+                this.melhorJogada();
+            }}
+          
+          />
+        
+        
+        <text>{this.state.x} </text>
+      {this.state.x ?
+       <div>   
+       <div className="linha">
+          {this.renderizarQuadrado(0)}
+          {this.renderizarQuadrado(1)}
+          {this.renderizarQuadrado(2)}
+        </div>
+        <div className="linha">
+          {this.renderizarQuadrado(3)}
+          {this.renderizarQuadrado(4)}
+          {this.renderizarQuadrado(5)}
+        </div>
+          <div className="linha">
+          {this.renderizarQuadrado(6)}
+          {this.renderizarQuadrado(7)}
+          {this.renderizarQuadrado(8)}
+        </div>     
+       
+          </div>
+      : <div>   
+       <div className="linha">
+          {this.renderizarQuadrado(0)}
+          {this.renderizarQuadrado(1)}
+          {this.renderizarQuadrado(2)}
+        </div>
+        <div className="linha">
+          {this.renderizarQuadrado(3)}
+          {this.renderizarQuadrado(4)}
+          {this.renderizarQuadrado(5)}
+        </div>
+          <div className="linha">
+          {this.renderizarQuadrado(6)}
+          {this.renderizarQuadrado(7)}
+          {this.renderizarQuadrado(8)}
+        </div>     
+       
+          </div>}
+        
+      </div>
+    );
+  }
+  reiniciarJogo(){
+     this.setState({
+        quadrados: Array(9).fill(null),
+      xIsNext: true,
+       x: this.state.x ? false: true
+    });
+  }
+  renderizarQuadrado(i) {
+    return (
+      <Quadrado
+        value={this.state.quadrados[i]}
+        onClick={() => this.handleClick(i)}
+      />
+    );
+  }
+  
+  
+  jogarAleatorio(){
+   var RandomNumber = Math.floor(Math.random() * 9) + 0 ;
+    this.clickAleatorio(RandomNumber);
+    
+  }
+  melhorJogada(){
+    const quadrados = this.state.quadrados.slice();
+    let jogada =  calculateBestMove(quadrados);
+    if(jogada){
+      this.melhorClick(jogada);
+    }
+  }
+  
+  melhorClick(i) {
+    const quadrados = this.state.quadrados.slice();
+    let vencedor = calculateWinner(quadrados);
+    if (vencedor) {
+      alert(vencedor + " ganhou!");
+      return;
+    }
+    if (quadrados[i]) {
+      this.clickAleatorio(i)
+      return;
+    }
+    
+    quadrados[i] = this.state.xIsNext ? "X" : "O";
+    this.setState({ quadrados: quadrados, xIsNext: !this.state.xIsNext });
+  }
+  handleClick(i) {
+    const quadrados = this.state.quadrados.slice();
+    let vencedor = calculateWinner(quadrados);
+    if (vencedor) {
+      alert(vencedor + " ganhou!");
+      return;
+    }
+    if (quadrados[i]) {
+      alert("Quadrado ocupado!");
+      return;
+    }
+    quadrados[i] = this.state.xIsNext ? "X" : "O";
+    this.setState({ quadrados: quadrados, xIsNext: !this.state.xIsNext });
+  }
+  clickAleatorio(i) {
+    const quadrados = this.state.quadrados.slice();
+    let vencedor = calculateWinner(quadrados);
+    if (vencedor) {
+      alert(vencedor + " ganhou!");
+      return;
+    }
+    if (quadrados[i]) {
+        this.jogarAleatorio();
+      return;
+      
+    }
+    quadrados[i] = this.state.xIsNext ? "X" : "O";
+    this.setState({ quadrados: quadrados, xIsNext: !this.state.xIsNext });
+  }
+}
+
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c])
+      return squares[a];
+  }
+  return null;
+}
+
+function calculateBestMove(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] != squares[c] )
+      return c;
+    if (squares[a] && squares[a] === squares[c] && squares[a] != squares[b] )
+      return b;
+    
+    if(squares[c] && squares[c] === squares[b] && squares[c] != squares[a])
+      return a;
+    
+       
+  }
+  
+}
+
+
+
+
+
+class Quadrado extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <button className="quadrado" onClick={() => this.props.onClick()}>
+        {this.props.value}
+      </button>
+    );
+  }
+}
+
+function Restart(props) {
+  return (
+    <button class="btnEscolha" onClick={props.onClick}>
+      {props.value}
+    </button>
+  );
+}
+
+function RandomValue(props) {
+  return (
+    <button class="btnEscolha" onClick={props.onClick}>
+      {props.value}
+    </button>
+  );
+}
+
+
+function Melhorjogada(props) {
+  return (
+    <button class="btnEscolha" onClick={props.onClick}>
+      {props.value}
+    </button>
+  );
+}
+
+ReactDOM.render(<Jogo />, document.getElementById("root"));
